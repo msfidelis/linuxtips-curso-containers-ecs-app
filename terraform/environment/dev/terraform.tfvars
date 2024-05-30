@@ -24,6 +24,8 @@ ssm_private_subnet_2 = "/linuxtips-vpc/vpc/subnet_private_1b"
 
 ssm_private_subnet_3 = "/linuxtips-vpc/vpc/subnet_private_1c"
 
+ssm_alb = "/linuxtips/ecs/lb/id"
+
 service_hosts = [
   "chip.linuxtips.demo"
 ]
@@ -50,3 +52,29 @@ service_healthcheck = {
   path                = "/healthcheck"
   port                = 8080
 }
+
+
+scale_type   = "requests_tracking"
+task_minimum = 3
+task_maximum = 12
+
+### Autoscaling de CPU
+
+scale_out_cpu_threshold       = 50
+scale_out_adjustment          = 2
+scale_out_comparison_operator = "GreaterThanOrEqualToThreshold"
+scale_out_statistic           = "Average"
+scale_out_period              = 60
+scale_out_evaluation_periods  = 2
+scale_out_cooldown            = 60
+
+scale_in_cpu_threshold       = 30
+scale_in_adjustment          = -1
+scale_in_comparison_operator = "LessThanOrEqualToThreshold"
+scale_in_statistic           = "Average"
+scale_in_period              = 60
+scale_in_evaluation_periods  = 2
+scale_in_cooldown            = 60
+
+scale_tracking_cpu           = 50
+scale_tracking_requests      = 30

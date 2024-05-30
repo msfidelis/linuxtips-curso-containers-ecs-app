@@ -73,6 +73,11 @@ variable "ssm_private_subnet_3" {
   description = "ID da terceira subnet privada, armazenado no AWS SSM, usada para implantação do serviço."
 }
 
+variable "ssm_alb" {
+  type        = string
+  description = ""
+}
+
 variable "environment_variables" {
   type        = list(map(string))
   description = "Lista de variáveis de ambiente que serão passadas às tarefas do serviço."
@@ -82,3 +87,46 @@ variable "capabilities" {
   type        = list(string)
   description = "Lista de capacidades especiais necessárias para o serviço, como 'SYS_ADMIN' para determinados privilégios de sistema."
 }
+
+variable "scale_type" {}
+
+variable "task_minimum" {}
+
+variable "task_maximum" {}
+
+### Autoscaling de CPU
+
+variable "scale_out_cpu_threshold" {}
+
+variable "scale_out_adjustment" {}
+
+variable "scale_out_comparison_operator" {}
+
+variable "scale_out_statistic" {}
+
+variable "scale_out_period" {}
+
+variable "scale_out_evaluation_periods" {}
+
+variable "scale_out_cooldown" {}
+
+variable "scale_in_cpu_threshold" {}
+
+variable "scale_in_adjustment" {}
+
+variable "scale_in_comparison_operator" {}
+
+variable "scale_in_statistic" {}
+
+variable "scale_in_period" {}
+
+variable "scale_in_evaluation_periods" {}
+
+variable "scale_in_cooldown" {}
+
+### Tracking CPU
+variable "scale_tracking_cpu" {}
+
+
+### Tracking Requests
+variable "scale_tracking_requests" {}
