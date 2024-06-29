@@ -34,8 +34,10 @@ variable "service_healthcheck" {
 }
 
 variable "service_launch_type" {
-  type        = string
-  description = "Tipo de lançamento do serviço no ECS, podendo ser 'FARGATE' ou 'EC2'."
+  type = list(object({
+    capacity_provider = string
+    weight            = number
+  }))
 }
 
 variable "service_hosts" {
