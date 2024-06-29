@@ -2,7 +2,7 @@ region = "us-east-1"
 
 cluster_name = "linuxtips-ecs-cluster"
 
-service_name = "chip"
+service_name = "app-linuxtips"
 
 service_port = 8080
 
