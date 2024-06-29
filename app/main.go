@@ -15,14 +15,5 @@ func main() {
 		return c.SendString("ok")
 	})
 
-	app.Listen(":8080")
+	_ = app.Listen(":8080")
 }
-
-
-
-
-
-
-
-
-

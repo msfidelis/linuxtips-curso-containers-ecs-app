@@ -28,6 +28,10 @@ variable "service_memory" {
   description = "Quantidade de memória reservada para o serviço, em megabytes."
 }
 
+variable "container_image" {
+  type = string
+}
+
 variable "service_healthcheck" {
   type        = map(any)
   description = "Configurações do health check para o serviço, como caminho e protocolo."
