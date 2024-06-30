@@ -49,6 +49,10 @@ jobs:
     - name: Terraform init
       run: terraform init -backend-config=environment/dev/backend.tfvars
       working-directory: ./terraform
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
 
     - name: Terraform validate
       run: terraform validate
@@ -108,15 +112,27 @@ jobs:
     - name: Terraform init
       run: terraform init -backend-config=environment/dev/backend.tfvars
       working-directory: ./terraform
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
 
     - name: Terraform plan
       run: terraform plan -var-file=environment/dev/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ steps.get_commit_hash.outputs.commit_hash }}
       working-directory: ./terraform
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
 
     - name: Terraform apply
       run: terraform apply --auto-approve -var-file=environment/dev/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ steps.get_commit_hash.outputs.commit_hash }}
       working-directory: ./terraform
-
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
+        
   wait-deploy:
     runs-on: ubuntu-latest
     needs:
