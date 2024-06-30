@@ -1,0 +1,107 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - rascunho-aula-pipelines
+
+jobs:
+  ci_cd:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCOUNT: "181560427716"
+      AWS_REGION: "us-east-1"
+      APP_NAME: "app-linuxtip"
+      CLUSTER_NAME: "linuxtips-ecs-cluster"
+      REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.18'
+
+    - name: Install golangci-lint
+      run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1
+
+    - name: Lint Go code
+      run: golangci-lint run ./... -E errcheck
+      working-directory: ./app
+
+    - name: Run Go tests
+      run: go test -v ./...
+      working-directory: ./app
+
+    - name: Terraform fmt check
+      run: terraform fmt --recursive --check
+      working-directory: ./terraform
+
+    - name: Terraform validate
+      run: terraform validate
+      working-directory: ./terraform
+
+    - name: Get Git commit hash
+      id: get_commit_hash
+      run: echo "::set-output name=commit_hash::$(git rev-parse --short HEAD)"
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build Docker image
+      run: docker build -t app .
+      working-directory: ./app
+
+    - name: Create ECR repository if not exists
+      run: |
+        REPO_EXISTS=$(aws ecr describe-repositories --repository-names ${{ env.REPOSITORY_NAME }} 2>&1)
+        if [[ $REPO_EXISTS == *"RepositoryNotFoundException"* ]]; then
+          echo "Repositório ${{ env.REPOSITORY_NAME }} não encontrado. Criando..."
+          aws ecr create-repository --repository-name ${{ env.REPOSITORY_NAME }}
+        else
+          echo "Repositório ${{ env.REPOSITORY_NAME }} já existe."
+        fi
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
+
+    - name: Tag and Push Docker image to ECR
+      run: |
+        GIT_COMMIT_HASH=${{ steps.get_commit_hash.outputs.commit_hash }}
+        docker tag app:latest ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${GIT_COMMIT_HASH}
+        docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${GIT_COMMIT_HASH}
+
+    - name: Terraform init
+      run: terraform init -backend-config=environment/dev/backend.tfvars
+      working-directory: ./terraform
+
+    - name: Terraform plan
+      run: terraform plan -var-file=environment/dev/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ steps.get_commit_hash.outputs.commit_hash }}
+      working-directory: ./terraform
+
+    - name: Terraform apply
+      run: terraform apply --auto-approve -var-file=environment/dev/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ steps.get_commit_hash.outputs.commit_hash }}
+      working-directory: ./terraform
+
+    - name: Wait for ECS deploy to complete
+      run: aws ecs wait services-stable --cluster ${{ env.CLUSTER_NAME }} --services ${{ env.APP_NAME }}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ env.AWS_REGION }}
+
+    - name: Create Pull Request to Homolog
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "CI/CD pipeline completed successfully"
+        branch: dev
+        base: hom
+        title: "Merge dev into hom"
+        body: |
+          This PR was created automatically by the CI/CD pipeline after a successful build and deploy.
