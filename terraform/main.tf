@@ -1,5 +1,5 @@
 module "service" {
-  source                      = "git::github.com/msfidelis/linuxtips-curso-containers-ecs-service-module.git?ref=rascunho-aula-pipelines"
+  source                      = "github.com/msfidelis/linuxtips-curso-containers-ecs-service-module?ref=rascunho-aula-pipelines"
   region                      = var.region
   cluster_name                = var.cluster_name
   service_name                = var.service_name
