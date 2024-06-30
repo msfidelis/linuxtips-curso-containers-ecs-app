@@ -6,7 +6,7 @@ on:
       - rascunho-aula-pipelines
 
 jobs:
-  ci_cd:
+  ci-app:
     runs-on: ubuntu-latest
 
     env:
@@ -36,13 +36,45 @@ jobs:
       run: go test -v ./...
       working-directory: ./app
 
+  ci-terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCOUNT: "181560427716"
+      AWS_REGION: "us-east-1"
+      APP_NAME: "app-linuxtip"
+      CLUSTER_NAME: "linuxtips-ecs-cluster"
+      REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Terraform fmt check
       run: terraform fmt --recursive --check
+      working-directory: ./terraform
+
+    - name: Terraform init
+      run: terraform init -backend-config=environment/dev/backend.tfvars
       working-directory: ./terraform
 
     - name: Terraform validate
       run: terraform validate
       working-directory: ./terraform
+
+  build-image:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCOUNT: "181560427716"
+      AWS_REGION: "us-east-1"
+      APP_NAME: "app-linuxtip"
+      CLUSTER_NAME: "linuxtips-ecs-cluster"
+      REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Get Git commit hash
       id: get_commit_hash
@@ -76,6 +108,20 @@ jobs:
         docker tag app:latest ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${GIT_COMMIT_HASH}
         docker push ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${GIT_COMMIT_HASH}
 
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCOUNT: "181560427716"
+      AWS_REGION: "us-east-1"
+      APP_NAME: "app-linuxtip"
+      CLUSTER_NAME: "linuxtips-ecs-cluster"
+      REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Terraform init
       run: terraform init -backend-config=environment/dev/backend.tfvars
       working-directory: ./terraform
@@ -88,12 +134,40 @@ jobs:
       run: terraform apply --auto-approve -var-file=environment/dev/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ steps.get_commit_hash.outputs.commit_hash }}
       working-directory: ./terraform
 
+  wait-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCOUNT: "181560427716"
+      AWS_REGION: "us-east-1"
+      APP_NAME: "app-linuxtip"
+      CLUSTER_NAME: "linuxtips-ecs-cluster"
+      REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Wait for ECS deploy to complete
       run: aws ecs wait services-stable --cluster ${{ env.CLUSTER_NAME }} --services ${{ env.APP_NAME }}
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ env.AWS_REGION }}
+
+  create-pr:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCOUNT: "181560427716"
+      AWS_REGION: "us-east-1"
+      APP_NAME: "app-linuxtip"
+      CLUSTER_NAME: "linuxtips-ecs-cluster"
+      REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Create Pull Request to Homolog
       uses: peter-evans/create-pull-request@v5
