@@ -1,5 +1,5 @@
 module "service" {
-  source                      = "/Users/matheus/Workspace/linuxtips/linuxtips-curso-containers-ecs-service-module"
+  source                      = "http://github.com/msfidelis/linuxtips-curso-containers-ecs-service-module.git?ref=rascunho-aula-pipelines"
   region                      = var.region
   cluster_name                = var.cluster_name
   service_name                = var.service_name
