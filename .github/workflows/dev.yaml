@@ -5,20 +5,19 @@ on:
     branches:
       - rascunho-aula-pipelines
 
+env:
+  AWS_ACCOUNT: "181560427716"
+  AWS_REGION: "us-east-1"
+  APP_NAME: "app-linuxtip"
+  CLUSTER_NAME: "linuxtips-ecs-cluster"
+  REPOSITORY_NAME: "linuxtips/$APP_NAME"
+
 jobs:
   ci-app:
     runs-on: ubuntu-latest
-
-    env:
-      AWS_ACCOUNT: "181560427716"
-      AWS_REGION: "us-east-1"
-      APP_NAME: "app-linuxtip"
-      CLUSTER_NAME: "linuxtips-ecs-cluster"
-      REPOSITORY_NAME: "linuxtips/$APP_NAME"
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v2
@@ -39,16 +38,9 @@ jobs:
   ci-terraform:
     runs-on: ubuntu-latest
 
-    env:
-      AWS_ACCOUNT: "181560427716"
-      AWS_REGION: "us-east-1"
-      APP_NAME: "app-linuxtip"
-      CLUSTER_NAME: "linuxtips-ecs-cluster"
-      REPOSITORY_NAME: "linuxtips/$APP_NAME"
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Terraform fmt check
       run: terraform fmt --recursive --check
@@ -67,16 +59,10 @@ jobs:
     needs: 
     - ci-app
     - ci-terraform
-    env:
-      AWS_ACCOUNT: "181560427716"
-      AWS_REGION: "us-east-1"
-      APP_NAME: "app-linuxtip"
-      CLUSTER_NAME: "linuxtips-ecs-cluster"
-      REPOSITORY_NAME: "linuxtips/$APP_NAME"
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Get Git commit hash
       id: get_commit_hash
@@ -114,16 +100,10 @@ jobs:
     runs-on: ubuntu-latest
     needs:
     - build-image
-    env:
-      AWS_ACCOUNT: "181560427716"
-      AWS_REGION: "us-east-1"
-      APP_NAME: "app-linuxtip"
-      CLUSTER_NAME: "linuxtips-ecs-cluster"
-      REPOSITORY_NAME: "linuxtips/$APP_NAME"
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Terraform init
       run: terraform init -backend-config=environment/dev/backend.tfvars
@@ -141,16 +121,10 @@ jobs:
     runs-on: ubuntu-latest
     needs:
     - deploy
-    env:
-      AWS_ACCOUNT: "181560427716"
-      AWS_REGION: "us-east-1"
-      APP_NAME: "app-linuxtip"
-      CLUSTER_NAME: "linuxtips-ecs-cluster"
-      REPOSITORY_NAME: "linuxtips/$APP_NAME"
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Wait for ECS deploy to complete
       run: aws ecs wait services-stable --cluster ${{ env.CLUSTER_NAME }} --services ${{ env.APP_NAME }}
@@ -163,16 +137,10 @@ jobs:
     runs-on: ubuntu-latest
     needs:
     - wait-deploy
-    env:
-      AWS_ACCOUNT: "181560427716"
-      AWS_REGION: "us-east-1"
-      APP_NAME: "app-linuxtip"
-      CLUSTER_NAME: "linuxtips-ecs-cluster"
-      REPOSITORY_NAME: "linuxtips/$APP_NAME"
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Create Pull Request to Homolog
       uses: peter-evans/create-pull-request@v5
