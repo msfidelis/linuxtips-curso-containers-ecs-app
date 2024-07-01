@@ -8,7 +8,7 @@ on:
 env:
   AWS_ACCOUNT: "181560427716"
   AWS_REGION: "us-east-1"
-  APP_NAME: "app-linuxtip"
+  APP_NAME: "app-linuxtips"
   CLUSTER_NAME: "linuxtips-ecs-cluster"
   REPOSITORY_NAME: "linuxtips/$APP_NAME"
 
