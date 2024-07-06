@@ -177,6 +177,5 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         title: "Merge dev into main"
         branch: dev
-        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
         commit-message: "CI/CD pipeline completed successfully"
         body: This PR was created automatically by the CI/CD pipeline after a successful build and deploy.
