@@ -56,7 +56,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION:  ${{ env.AWS_REGIONS }}
+        AWS_REGION:  ${{ env.AWS_REGION }}
 
     - name: Terraform Validate
       run: terraform validate
@@ -64,7 +64,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION:  ${{ env.AWS_REGIONS }}
+        AWS_REGION:  ${{ env.AWS_REGION }}
 
   build-publish:
     runs-on: ubuntu-latest
@@ -130,7 +130,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION:  ${{ env.AWS_REGIONS }}
+        AWS_REGION:  ${{ env.AWS_REGION }}
 
     - name: Terraform Plan
       run: terraform plan -var-file=environment/${GITHUB_REF_NAME}/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${GITHUB_SHA::8}
@@ -138,7 +138,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION:  ${{ env.AWS_REGIONS }}
+        AWS_REGION:  ${{ env.AWS_REGION }}
 
     - name: Terraform Apply
       run: terraform apply --auto-approve -var-file=environment/${GITHUB_REF_NAME}/terraform.tfvars -var container_image=${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${GITHUB_SHA::8}
@@ -146,7 +146,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION:  ${{ env.AWS_REGIONS }}
+        AWS_REGION:  ${{ env.AWS_REGION }}
 
   wait-ecs-deploy:
     runs-on: ubuntu-latest
@@ -158,3 +158,7 @@ jobs:
 
     - name: ECS Wait Deployment Complete
       run: aws ecs wait services-stable --cluster ${{ env.CLUSTER_NAME }} --services  ${{ env.APP_NAME }}
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION:  ${{ env.AWS_REGION }}      
