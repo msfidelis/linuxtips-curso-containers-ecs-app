@@ -172,10 +172,11 @@ jobs:
       uses: actions/checkout@v4  
 
     - name: Create Pull Request to Main
-      uses: peter-evans/create-pull-request@v4
+      uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         title: "Merge dev into main"
-        branch: dev
+        base: main
         commit-message: "CI/CD pipeline completed successfully"
+        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
         body: This PR was created automatically by the CI/CD pipeline after a successful build and deploy.
