@@ -171,15 +171,14 @@ jobs:
     - name: checkout repository
       uses: actions/checkout@v4  
 
-    - name: Create Pull Request to Main
+    - name: Create Pull Request
+      id: create_pull_request
       uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        title: '[Example] Update report'
+        commit-message: "Auto-merge from dev to main"
         branch: "auto-pr/dev-to-main"
-        base: main
-        commit-message: Update report
-        signoff: false
+        base: "main"
+        title: "Merge dev into main"
+        body: "This is an automatic PR created by GitHub Actions to merge changes from dev into main."
         labels: "auto-pr"
-        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-        body: This PR was created automatically by the CI/CD pipeline after a successful build and deploy.
