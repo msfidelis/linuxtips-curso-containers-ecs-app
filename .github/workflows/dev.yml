@@ -34,3 +34,34 @@ jobs:
     - name: Test App
       run: go test -v ./...
       working-directory: ./app
+
+  ci-terraform:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5.7"
+
+    - name: Terraform fmt check
+      run: terraform fmt --recursive --check
+      working-directory: ./terraform
+
+    - name: Terraform Init
+      run: terraform init -backend-config=environment/${GITHUB_HEAD_REF}/backend.tfvars
+      working-directory: ./terraform
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION:  ${{ env.AWS_REGIONS }}
+
+    - name: Terraform Validate
+      run: terraform validate
+      working-directory: ./terraform
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION:  ${{ env.AWS_REGIONS }}        
