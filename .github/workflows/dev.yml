@@ -162,23 +162,3 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION:  ${{ env.AWS_REGION }}      
-
-  open-pr-to-main:
-    runs-on: ubuntu-latest
-    # needs:
-    #   - wait-ecs-deploy
-    steps:
-    - name: checkout repository
-      uses: actions/checkout@v4  
-
-    - name: Create Pull Request
-      id: create_pull_request
-      uses: peter-evans/create-pull-request@v6
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Auto-merge from dev to main"
-        branch: "auto-pr/dev-to-main"
-        base: "main"
-        title: "Merge dev into main"
-        body: "This is an automatic PR created by GitHub Actions to merge changes from dev into main."
-        labels: "auto-pr"
