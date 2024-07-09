@@ -1,5 +1,5 @@
 module "service" {
-  source                      = "github.com/msfidelis/linuxtips-curso-containers-ecs-service-module?ref=v1.1.0"
+  source                      = "github.com/msfidelis/linuxtips-curso-containers-ecs-service-module?ref=v1.2.0"
   region                      = var.region
   cluster_name                = var.cluster_name
   service_name                = var.service_name
@@ -16,6 +16,17 @@ module "service" {
   container_image = var.container_image
 
   environment_variables = var.environment_variables
+
+  secrets = [
+    {
+      name      = "VARIAVEL_COM_VALOR_DO_SSM"
+      valueFrom = aws_ssm_parameter.teste.arn
+    },
+    {
+      name      = "VARIAVEL_COM_VALOR_DO_SECRETS"
+      valueFrom = aws_secretsmanager_secret.teste.arn
+    }
+  ]
 
   capabilities = var.capabilities
 

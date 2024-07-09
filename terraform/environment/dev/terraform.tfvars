@@ -46,6 +46,10 @@ environment_variables = [
   {
     name  = "PING",
     value = "PONG"
+  },
+  {
+    name  = "DB_PASS",
+    value = "abc123123"
   }
 ]
 
