@@ -1,5 +1,6 @@
 module "service" {
-  source                      = "github.com/msfidelis/linuxtips-curso-containers-ecs-service-module?ref=v1.2.0"
+  # source                      = "github.com/msfidelis/linuxtips-curso-containers-ecs-service-module?ref=v1.2.0"
+  source                      = "/Users/matheus/Workspace/linuxtips/linuxtips-curso-containers-ecs-service-module"
   region                      = var.region
   cluster_name                = var.cluster_name
   service_name                = var.service_name
@@ -76,4 +77,6 @@ module "service" {
 
   alb_arn                 = data.aws_ssm_parameter.alb.value
   scale_tracking_requests = var.scale_tracking_requests
+
+  service_discovery_namespace = data.aws_ssm_parameter.service_discovery_namespace.value
 }
